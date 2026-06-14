@@ -240,17 +240,22 @@ docker run -p 5000:5000 tanayjain29/flask-devops-app:v1.0
 ```
 flask-docker-app/
 │
-├── app.py                  # Flask application
-├── Dockerfile              # Container image definition
-├── docker-compose.yml      # Local multi-container setup
-├── requirements.txt        # Python dependencies
-├── .env                    # Environment variables (not committed)
-├── .gitignore
-├── .dockerignore
+├── app.py                      # Flask application
+├── Dockerfile                  # Container image definition
+├── docker-compose.yml          # Local multi-container setup
+├── requirements.txt            # Python dependencies
+├── .env                        # Environment variables (not committed)
+├── .gitignore                  # Git ignored files
+├── .dockerignore               # Docker ignored files
 │
 ├── docs/
-│   ├── architecture.png        # v1.0 local architecture
-│   └── architecture-v2.png     # v2.0 AWS production architecture
+│   ├── architecture.png            # v1.0 local architecture diagram
+│   ├── architecture-v2.png         # v2.0 AWS production architecture diagram
+│   ├── alb-target-health.png       # ALB health check screenshot
+│   ├── ec2-instance.png            # EC2 instance screenshot
+│   ├── rds-instance.png            # RDS instance screenshot
+│   ├── cloudwatch-dashboard.png    # CloudWatch dashboard screenshot
+│   └── application-homepage.png    # Running application screenshot
 │
 └── README.md
 ```
