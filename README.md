@@ -20,6 +20,8 @@ Design and deploy a production-style three-tier web application on AWS using Doc
 
 ![Architecture](docs/architecture-v2.png)
 
+> Route 53 and S3 shown in the diagram are planned components for v3.0.
+
 ---
 
 ## What This Project Is
