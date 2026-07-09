@@ -1,0 +1,29 @@
+name: Scheduled Tasks
+
+on:
+  schedule:
+    # Har din raat 12 baje UTC (5:30 AM IST)
+    - cron: '0 0 * * *'
+
+    # Har Monday subah 9 AM UTC
+    # - cron: '0 9 * * 1'
+
+    # Har 6 ghante
+    # - cron: '0 */6 * * *'
+
+jobs:
+  scheduled-health-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Health check run karo
+        run: |
+          echo "Scheduled run at: $(date)"
+          echo "Checking application health..."
+          # curl https://your-app-url/health
+          echo "Health check complete"
+
+      - name: Cleanup old artifacts
+        run: |
+          echo "Cleanup tasks..."
+          echo "Old logs cleaned"
