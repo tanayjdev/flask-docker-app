@@ -1,0 +1,30 @@
+name: Push Trigger Examples
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'feature/**'
+
+    paths:
+      - 'app.py'
+      - 'requirements.txt'
+      - 'Dockerfile'
+
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+
+jobs:
+  show-trigger-info:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger information dikhao
+        run: |
+          echo "Triggered by: ${{ github.event_name }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Repository: ${{ github.repository }}"
