@@ -1,0 +1,48 @@
+name: Manual Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Kahan deploy karna hai?'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+      version:
+        description: 'Docker image version'
+        required: true
+        default: 'latest'
+        type: string
+
+      run_tests:
+        description: 'Tests chalayein?'
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  manual-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Inputs dikhao
+        run: |
+          echo "Environment: ${{ github.event.inputs.environment }}"
+          echo "Version: ${{ github.event.inputs.version }}"
+          echo "Run tests: ${{ github.event.inputs.run_tests }}"
+          echo "Triggered by: ${{ github.actor }}"
+
+      - name: Tests chalao (conditional)
+        if: ${{ github.event.inputs.run_tests == 'true' }}
+        run: |
+          echo "Tests running..."
+          echo "Tests passed!"
+
+      - name: Deploy karo
+        run: |
+          echo "Deploying version ${{ github.event.inputs.version }}"
+          echo "to ${{ github.event.inputs.environment }}"
+          echo "Deployment complete"
