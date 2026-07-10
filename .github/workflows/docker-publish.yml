@@ -73,6 +73,15 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Image vulnerability scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.IMAGE_NAME }}:latest
+          format: table
+          exit-code: '0'
+          ignore-unfixed: true
+          severity: CRITICAL,HIGH
+          
       - name: Push summary dikhao
         run: |
           echo "### Docker Image Published! 🐳" >> $GITHUB_STEP_SUMMARY
