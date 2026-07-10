@@ -1,0 +1,31 @@
+name: Expressions Demo
+
+on:
+  push:
+
+jobs:
+  expressions:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Expression examples
+        run: |
+          echo "Event: ${{ github.event_name }}"
+          echo "Is main: ${{ github.ref == 'refs/heads/main' }}"
+
+      - name: String functions
+        run: |
+          echo "Contains main: ${{ contains(github.ref,'main') }}"
+          echo "StartsWith feature: ${{ startsWith(github.ref,'refs/heads/feature') }}"
+          echo "Format: ${{ format('Hello {0}!', github.actor) }}"
+
+      - name: Tag banao
+        run: |
+          if [[ "${{ github.ref_name }}" == "main" ]]; then
+            TAG="latest"
+          else
+            TAG="${{ github.ref_name }}"
+          fi
+
+          echo "Tag: $TAG"
