@@ -1,0 +1,71 @@
+name: Job Patterns
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # Yeh 3 jobs parallel chalenge
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Lint karo
+        run: |
+          echo "Python syntax check..."
+          python -m py_compile app.py
+          echo "Lint passed!"
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Tests run karo
+        run: |
+          echo "Tests running..."
+          echo "All tests passed!"
+
+  security-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Security scan
+        run: |
+          echo "Scanning for vulnerabilities..."
+          echo "Scan complete!"
+
+  # Yeh job sirf lint + test dono pass hone ke baad chalega
+
+  build:
+    needs:
+      - lint
+      - test
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build karo
+        run: |
+          echo "Building Docker image..."
+          echo "Build complete!"
+
+  # Yeh sirf build ke baad chalega
+
+  deploy:
+    needs: build
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy karo
+        run: echo "Deploying..."
