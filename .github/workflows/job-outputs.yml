@@ -1,0 +1,42 @@
+name: Job Outputs Example
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  generate-version:
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.set-version.outputs.version }}
+      image-tag: ${{ steps.set-version.outputs.image-tag }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Version generate karo
+        id: set-version
+        run: |
+          # Short commit hash
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          VERSION="v2.0-${SHORT_SHA}"
+          IMAGE_TAG="tanayjdev/flask-app:${VERSION}"
+
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "image-tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+
+          echo "Generated version: ${VERSION}"
+          echo "Image tag: ${IMAGE_TAG}"
+
+  use-version:
+    needs: generate-version
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Previous job ka output use karo
+        run: |
+          echo "Version: ${{ needs.generate-version.outputs.version }}"
+          echo "Image: ${{ needs.generate-version.outputs.image-tag }}"
+          echo "Is yeh tag se image build karenge"
