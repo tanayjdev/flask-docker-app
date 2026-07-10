@@ -13,7 +13,7 @@ jobs:
 
     env:
       JOB_ENV: production
-      IMAGE_NAME: ${{ env.REGISTRY }}/tanayjdev/${{ env.APP_NAME }}
+      IMAGE_NAME: docker.io/tanayjain29/flask-devops-app
 
     steps:
       - uses: actions/checkout@v4

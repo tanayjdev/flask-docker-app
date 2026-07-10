@@ -12,10 +12,6 @@ on:
       - 'requirements.txt'
       - 'Dockerfile'
 
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-
 jobs:
   show-trigger-info:
     runs-on: ubuntu-latest
