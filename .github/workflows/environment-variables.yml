@@ -1,0 +1,38 @@
+name: Environment Variables
+
+on:
+  push:
+
+env:
+  APP_NAME: flask-devops-app
+  REGISTRY: docker.io
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+
+    env:
+      JOB_ENV: production
+      IMAGE_NAME: ${{ env.REGISTRY }}/tanayjdev/${{ env.APP_NAME }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Env vars use karo
+        env:
+          STEP_VAR: hello
+
+        run: |
+          echo "App: $APP_NAME"
+          echo "Registry: $REGISTRY"
+          echo "Job env: $JOB_ENV"
+          echo "Image: $IMAGE_NAME"
+          echo "Step var: $STEP_VAR"
+
+      - name: GitHub context vars
+        run: |
+          echo "Repo: $GITHUB_REPOSITORY"
+          echo "SHA: $GITHUB_SHA"
+          echo "Branch: $GITHUB_REF_NAME"
+          echo "Actor: $GITHUB_ACTOR"
+          echo "Workspace: $GITHUB_WORKSPACE"
