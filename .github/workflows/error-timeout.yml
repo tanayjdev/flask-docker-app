@@ -1,0 +1,32 @@
+name: Continue On Error Demo
+
+on:
+  push:
+
+jobs:
+  resilient-job:
+
+    runs-on: ubuntu-latest
+
+    timeout-minutes: 30
+
+    steps:
+
+      - name: Optional check
+        continue-on-error: true
+
+        run: |
+          echo "This step will fail"
+          exit 1
+
+      - name: Next step
+        run: |
+          echo "Workflow is still running"
+
+      - name: Timeout example
+        timeout-minutes: 5
+
+        run: |
+          echo "Sleeping..."
+          sleep 10
+          echo "Finished"
