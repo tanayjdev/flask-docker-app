@@ -1,0 +1,53 @@
+name: Reusable Test Workflow
+
+# Yeh workflow sirf called hone pe chalti hai
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        required: false
+        type: string
+        default: '3.10'
+      run-coverage:
+        required: false
+        type: boolean
+        default: true
+    secrets:
+      # Calling workflow ke secrets forward karo
+      SOME_SECRET:
+        required: false
+    outputs:
+      test-result:
+        description: "Test result"
+        value: ${{ jobs.test.outputs.result }}
+
+jobs:
+  test:
+    name: Tests (${{ inputs.python-version }})
+    runs-on: ubuntu-latest
+
+    outputs:
+      result: ${{ steps.run-tests.outputs.result }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        id: run-tests
+        run: |
+          pytest test_app.py -v
+          echo "result=passed" >> $GITHUB_OUTPUT
+
+      - name: Coverage
+        if: ${{ inputs.run-coverage }}
+        run: |
+          pip install pytest-cov
+          pytest test_app.py --cov=. --cov-report=term

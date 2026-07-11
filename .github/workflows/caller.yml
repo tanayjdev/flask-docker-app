@@ -1,0 +1,34 @@
+name: Main Pipeline (with reusable)
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  # Call reusable workflow for Python 3.9
+  run-tests-39:
+    uses: ./.github/workflows/reusable-test.yml
+    with:
+      python-version: '3.9'
+      run-coverage: false
+
+  # Call reusable workflow for Python 3.10
+  run-tests-310:
+    uses: ./.github/workflows/reusable-test.yml
+    with:
+      python-version: '3.10'
+      run-coverage: true
+
+  # Use outputs from both reusable workflows
+  after-tests:
+    needs:
+      - run-tests-39
+      - run-tests-310
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Display test results
+        run: |
+          echo "Python 3.9 result: ${{ needs.run-tests-39.outputs.test-result }}"
+          echo "Python 3.10 result: ${{ needs.run-tests-310.outputs.test-result }}"
+          echo "All tests passed!"
