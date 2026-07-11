@@ -1,0 +1,41 @@
+name: Deploy to EC2
+
+on:
+  workflow_run:
+    workflows:
+      - "Docker Build and Push"
+    types:
+      - completed
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy using SSH
+        uses: appleboy/ssh-action@v1
+
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+
+          script: |
+            set -e
+
+            cd ~/flask-docker-app
+
+            git pull origin main
+
+            docker compose pull
+
+            docker compose up -d
+
+            sleep 15
+
+            curl http://localhost:5000/health
+
+            docker compose ps
+
+            echo "Deployment Finished"
