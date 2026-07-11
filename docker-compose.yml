@@ -1,7 +1,7 @@
 services:
 
   web:
-    build: .
+    image: tanayjain29/flask-devops-app:latest
     ports:
       - "5000:5000"
     depends_on:
