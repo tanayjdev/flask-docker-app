@@ -32,10 +32,8 @@ jobs:
 
             docker compose up -d
 
-            sleep 15
+            docker compose ps
 
             curl http://localhost:5000/health
-
-            docker compose ps
 
             echo "Deployment Finished"
