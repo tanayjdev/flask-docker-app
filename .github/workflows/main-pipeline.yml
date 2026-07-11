@@ -1,0 +1,177 @@
+name: Main CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Tests skip karo?'
+        required: false
+        default: false
+        type: boolean
+      environment:
+        description: 'Deploy environment'
+        required: false
+        default: 'production'
+        type: choice
+        options: [ production, staging ]
+
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/flask-devops-app
+  PYTHON_VERSION: '3.10'
+
+jobs:
+
+  # ─── JOB 1: Lint ──────────────────────────────────────────
+  lint:
+    name: 🔍 Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - run: pip install flake8
+      - run: flake8 . --count --statistics
+
+  # ─── JOB 2: Test ──────────────────────────────────────────
+  test:
+    name: 🧪 Test
+    runs-on: ubuntu-latest
+    needs: lint
+    if: ${{ github.event.inputs.skip_tests != 'true' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Dependencies install karo
+        run: pip install -r requirements.txt
+
+      - name: Tests run karo
+        run: pytest test_app.py -v --tb=short
+
+      - name: Coverage
+        run: |
+          pytest test_app.py \
+            --cov=. \
+            --cov-report=xml \
+            --cov-report=term
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage.xml
+          retention-days: 5
+
+  # ─── JOB 3: Docker Build ──────────────────────────────────
+  docker-build:
+    name: 🐳 Docker Build & Push
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+
+    # Sirf main branch pe push karo
+    # PR pe sirf build karo, push nahi
+    outputs:
+      image-tag: ${{ steps.meta.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Docker Hub login karo
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Metadata generate karo
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=short
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Build summary
+        run: |
+          echo "### Docker Build Complete 🐳" >> $GITHUB_STEP_SUMMARY
+          echo "Image: \`${{ env.IMAGE_NAME }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "Tags: ${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+
+  # ─── JOB 4: Deploy ────────────────────────────────────────
+  deploy:
+    name: 🚀 Deploy to EC2
+    runs-on: ubuntu-latest
+    needs: docker-build
+
+    # Sirf main branch push pe deploy
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    environment: production
+
+    steps:
+      - name: EC2 pe deploy karo
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+
+            echo "=== Deployment: $(date) ==="
+
+            cd ~/flask-docker-app
+
+            docker compose pull
+
+            docker compose up -d --force-recreate
+
+            sleep 15
+
+            HEALTH=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/health)
+
+            if [ "$HEALTH" = "200" ]; then
+              echo "✅ Healthy! HTTP $HEALTH"
+              docker compose ps
+            else
+              echo "❌ Unhealthy! HTTP $HEALTH"
+              docker compose logs --tail=30
+              exit 1
+            fi
+
+      - name: Deployment summary
+        if: always()
+        run: |
+          STATUS="${{ job.status }}"
+          if [ "$STATUS" = "success" ]; then
+            echo "### ✅ Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ Deployment Failed!" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "Environment: production" >> $GITHUB_STEP_SUMMARY
+          echo "Time: $(date)" >> $GITHUB_STEP_SUMMARY
