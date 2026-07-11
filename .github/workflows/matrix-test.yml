@@ -15,18 +15,7 @@ jobs:
 
       matrix:
         python-version: ['3.9', '3.10', '3.11']
-        os: [ubuntu-latest, ubuntu-20.04]
-
-        # Specific combinations exclude karo
-        exclude:
-          - python-version: '3.9'
-            os: 'ubuntu-20.04'
-
-        # Extra combination add karo
-        include:
-          - python-version: '3.11'
-            os: 'ubuntu-latest'
-            experimental: true
+        os: [ubuntu-latest]
 
     steps:
       - uses: actions/checkout@v4
@@ -44,7 +33,3 @@ jobs:
 
       - name: Python version confirm karo
         run: python --version
-
-      - name: Experimental step
-        if: ${{ matrix.experimental == true }}
-        run: echo "This is experimental!"
