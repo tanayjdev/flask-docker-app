@@ -1,0 +1,50 @@
+name: Matrix Test
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  test-matrix:
+    name: Test Python ${{ matrix.python-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      # Ek fail hone pe baki jobs continue karo
+      fail-fast: false
+
+      matrix:
+        python-version: ['3.9', '3.10', '3.11']
+        os: [ubuntu-latest, ubuntu-20.04]
+
+        # Specific combinations exclude karo
+        exclude:
+          - python-version: '3.9'
+            os: 'ubuntu-20.04'
+
+        # Extra combination add karo
+        include:
+          - python-version: '3.11'
+            os: 'ubuntu-latest'
+            experimental: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python ${{ matrix.python-version }} setup
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Dependencies install
+        run: pip install -r requirements.txt
+
+      - name: Tests run karo
+        run: pytest test_app.py -v
+
+      - name: Python version confirm karo
+        run: python --version
+
+      - name: Experimental step
+        if: ${{ matrix.experimental == true }}
+        run: echo "This is experimental!"
