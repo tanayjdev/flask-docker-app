@@ -1,5 +1,9 @@
 # Flask + PostgreSQL — Production Deployment on AWS
 
+[![Main CI/CD Pipeline](https://github.com/tanayjdev/flask-docker-app/actions/workflows/main-pipeline.yml/badge.svg)](https://github.com/tanayjdev/flask-docker-app/actions/workflows/main-pipeline.yml)
+[![Docker Pulls](https://img.shields.io/docker/pulls/tanayjain29/flask-devops-app)](https://hub.docker.com/r/tanayjain29/flask-devops-app)
+![Version](https://img.shields.io/badge/version-v2.0-blue)
+
 ![AWS](https://img.shields.io/badge/AWS-Deployed-FF9900?logo=amazonaws&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-RDS-4169E1?logo=postgresql&logoColor=white)
@@ -416,4 +420,3 @@ Built as part of a self-driven cloud and DevOps learning path.
 ---
 
 *This project is created for educational and learning purposes.*
-# Test
