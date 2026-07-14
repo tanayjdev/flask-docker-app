@@ -133,6 +133,9 @@ jobs:
       - lint
       - test
 
+    outputs:
+      image-tag: ${{ github.sha }}
+
     steps:
 
       - uses: actions/checkout@v4
@@ -225,7 +228,7 @@ jobs:
 
             cd ~/flask-docker-app
 
-            aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
 
             echo "Pulling latest Docker image..."
 
