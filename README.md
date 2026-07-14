@@ -1,4 +1,4 @@
-# Flask + PostgreSQL - Production-Grade CI/CD Pipeline on AWS
+# Flask + PostgreSQL - Production-style CI/CD Pipeline on AWS
 
 [![Main CI/CD Pipeline](https://github.com/tanayjdev/flask-docker-app/actions/workflows/main-pipeline.yml/badge.svg)](https://github.com/tanayjdev/flask-docker-app/actions/workflows/main-pipeline.yml)
 [![Docker Pulls](https://img.shields.io/docker/pulls/tanayjain29/flask-devops-app)](https://hub.docker.com/r/tanayjain29/flask-devops-app)
@@ -13,6 +13,23 @@
 
 ---
 
+## Key Highlights
+
+- Production-style Flask application
+- Dockerized deployment
+- GitHub Actions CI/CD Pipeline
+- Amazon Elastic Container Registry (ECR)
+- Automated deployment to Amazon EC2
+- Application Load Balancer (ALB)
+- CloudWatch monitoring
+- Matrix builds for multiple Python versions
+- Reusable GitHub Actions workflows
+- Composite GitHub Actions
+- Docker layer & pip dependency caching
+- Slack deployment notifications
+- Project evolution from local Docker → AWS Infrastructure → Full CI/CD
+---
+
 ## Project Goal
 
 Build, containerize, and deploy a production-style Flask web application on AWS while implementing an end-to-end CI/CD pipeline using GitHub Actions and modern DevOps practices.
@@ -21,11 +38,9 @@ The project demonstrates modern DevOps practices including automated code qualit
 
 ---
 
-## Architecture Diagram
+## Current Architecture (v3.0)
 
 ![Architecture](docs/architecture-v3.png)
-
-> Route 53 and S3 shown in the diagram are planned components for v3.0.
 
 ---
 
@@ -46,25 +61,27 @@ The project evolved through multiple versions:
 ## Architecture Overview
 
 ```
-User
-  │
-  ▼
-Application Load Balancer (ALB DNS)  ←── ALB Security Group (HTTP 80, HTTPS 443)
-  │
-  ▼
-EC2 Instance (Public Subnet)  ←── EC2 Security Group (HTTP 80 from ALB only)
-  │
-  ▼
+Developer
+     │
+     ▼
+GitHub
+     │
+     ▼
+GitHub Actions
+     │
+     ▼
+Amazon ECR
+     │
+     ▼
+Amazon EC2
+     │
+     ▼
 Docker Engine
-  │
-  ▼
-Flask Application (Python)
-  │
-  ▼
-Amazon RDS PostgreSQL (Private Subnet)  ←── RDS Security Group (5432 from EC2 only)
+     │
+     ▼
+Flask Application
 ```
-
-This follows the standard **3-Tier Architecture** pattern:
+> This diagram represents the current v3.0 automated deployment architecture.
 
 | Tier | Components |
 |---|---|
@@ -153,27 +170,34 @@ Amazon CloudWatch tracks the following metrics:
 
 ## Production Features
 
-- ALB Health Checks with `/health` endpoint
-- RDS isolated in private subnets — no public IP
-- Security Group layering (ALB → EC2 → RDS, no bypass)
-- Environment variable based configuration — no hardcoded secrets
-- CloudWatch metrics across all three tiers
-- Persistent database storage via Amazon RDS
-- Dockerized deployment with restart policy
-- Multi-subnet VPC architecture across Availability Zones
-- GitHub Actions CI/CD pipeline
-- Automated linting using Flake8
-- Automated unit testing using Pytest
-- Docker Buildx image builds
-- Docker layer caching
-- pip dependency caching
-- Automated deployment to Amazon EC2
-- Health check verification after deployment
+### Infrastructure (v2.0)
+
+- Three-tier AWS architecture (Application Load Balancer → EC2 → Amazon RDS PostgreSQL)
+- Application Load Balancer health checks using the `/health` endpoint
+- Amazon RDS PostgreSQL deployed in private subnets (no public internet access)
+- Security Group based network isolation (ALB → EC2 → RDS)
+- Multi-subnet Amazon VPC architecture across multiple Availability Zones
+- Environment variable based configuration (no hardcoded credentials)
+- Persistent PostgreSQL storage using Amazon RDS
+- Dockerized application with automatic container restart policies
+- Infrastructure monitoring using Amazon CloudWatch
+
+### CI/CD Automation (v3.0)
+
+- End-to-end CI/CD pipeline using GitHub Actions
+- Automated code quality checks with Flake8
+- Automated unit testing using Pytest with coverage reporting
+- Docker image builds using Docker Buildx
+- Docker layer caching for faster image builds
+- pip dependency caching for improved pipeline performance
+- Automated image publishing to Amazon Elastic Container Registry (ECR)
+- Automated deployment to Amazon EC2 after successful builds
+- Post-deployment health check verification
+- Matrix testing across multiple Python versions
+- Reusable GitHub Actions workflows
+- Composite GitHub Actions for reusable automation
 - GitHub Actions workflow summaries
-- Matrix builds
-- Reusable GitHub workflows
-- Composite Actions
-- Slack deployment notifications
+- Slack deployment notifications for successful and failed deployments
 
 ---
 
@@ -222,7 +246,7 @@ Used by ALB health checks and operational monitoring.
 
 ---
 
-## Local Development (v1.0 Setup)
+## Local Development (v1.0)
 
 To run the application locally without AWS:
 
@@ -255,14 +279,19 @@ http://localhost:5000
 
 ---
 
-## Docker Hub
+## Container Images
 
-Pull and run directly:
+Container image distribution evolved across project versions.
 
-```bash
-docker pull tanayjain29/flask-devops-app:latest
-docker run -p 5000:5000 tanayjain29/flask-devops-app:latest
-```
+- **v1.0 – v2.0:** Docker images were published to Docker Hub for learning and local deployments.
+- **v3.0:** The production CI/CD pipeline publishes Docker images to **Amazon Elastic Container Registry (ECR)**, which is used by the EC2 instance during automated deployments.
+
+Using Amazon ECR provides:
+
+- Private image registry
+- IAM-based authentication
+- Faster image pulls within AWS
+- Better integration with GitHub Actions and Amazon EC2
 
 ---
 
@@ -272,25 +301,23 @@ docker run -p 5000:5000 tanayjain29/flask-devops-app:latest
 flask-docker-app/
 │
 ├── .github/
-│   └── workflows/
-│       ├── main-pipeline.yml
-│       ├── matrix-test.yml
-│       ├── reusable-test.yml
-│       ├── caller.yml
-│       └── deploy.yml
-│
-├── .github/
+│   ├── workflows/
+│   │   ├── main-pipeline.yml
+│   │   ├── matrix-test.yml
+│   │   ├── reusable-test.yml
+│   │   ├── caller.yml
+│   │   └── deploy.yml
+│   │
 │   └── actions/
 │       └── setup-python-env/
 │           └── action.yml
 │
 ├── docs/
-│   ├── architecture.png
-│   ├── architecture-v2.png
+│   ├── architecture-v3.png
+│   ├── main-pipeline-success.png
+│   ├── ecr-repository.png
 │   ├── alb-target-health.png
 │   ├── cloudwatch-dashboard.png
-│   ├── ec2-instance.png
-│   ├── rds-instance.png
 │   └── application-homepage.png
 │
 ├── app.py
@@ -309,32 +336,26 @@ flask-docker-app/
 
 ```text
 Developer
-    │
-    ▼
+     │
+     ▼
 Git Push
-    │
-    ▼
+     │
+     ▼
 GitHub Repository
-    │
-    ▼
+     │
+     ▼
 GitHub Actions
-    │
-    ├── 🔍 Lint (Flake8)
-    ├── 🧪 Unit Tests (Pytest)
-    ├── 🐳 Docker Build
-    ├── 📦 Push Image to Amazon ECR
-    ├── 🚀 Deploy to Amazon EC2
-    └── ❤️ Health Check
-
-    │
-    ▼
-Flask Application
-    │
-    ▼
-Amazon RDS PostgreSQL
-    │
-    ▼
-Slack Notifications
+     │
+     ├── Lint
+     ├── Test
+     ├── Docker Build
+     ├── Push to Amazon ECR
+     ├── Deploy to EC2
+     ├── Health Check
+     └── Slack Notification
+     │
+     ▼
+Production
 ```
 
 ---
@@ -357,25 +378,6 @@ The workflow performs the following stages:
 10. The application health endpoint is verified.
 11. Deployment summaries and notifications are generated.
 
----
-
-## CI/CD Pipeline Features
-
-- GitHub Actions based CI/CD pipeline
-- Automated code linting with Flake8
-- Automated unit testing using Pytest
-- Matrix builds across multiple Python versions
-- Docker Buildx multi-stage builds
-- Docker layer caching for faster builds
-- pip dependency caching
-- Automated image publishing to Amazon ECR
-- Automated deployment to Amazon EC2
-- Health check validation after deployment
-- GitHub Actions workflow summaries
-- Slack deployment notifications
-- Reusable workflows
-- Composite Actions
-- Manual workflow dispatch support
 ---
 
 ## Version History
@@ -505,33 +507,14 @@ The Flask application is accessible through the Application Load Balancer DNS en
 
 ## Planned Improvements
 
-- Kubernetes deployment (Amazon EKS)
-- Custom domain with Route 53 + HTTPS via AWS Certificate Manager (ACM)
-- Static assets served from Amazon S3
-- Auto Scaling Group for EC2
-- CI/CD pipeline using GitHub Actions
+- Kubernetes deployment using Amazon EKS
 - Infrastructure as Code using Terraform
-- Container orchestration with ECS or EKS
-- Multi-AZ application layer
+- Auto Scaling Group for EC2
+- Custom domain with Route 53 and HTTPS (AWS Certificate Manager)
+- Static assets hosted on Amazon S3
+- Multi-AZ application deployment
 - Centralized logging with CloudWatch Logs
-
----
-
-## Key Achievements
-
-- Production-grade AWS deployment
-- Three-tier architecture
-- Dockerized application
-- Automated CI/CD pipeline
-- Amazon ECR integration
-- GitHub Actions automation
-- Automated EC2 deployments
-- Health check verification
-- Matrix testing
-- Reusable workflows
-- Deployment notifications
-- Infrastructure monitoring
-
+  
 ---
 
 ## Author
