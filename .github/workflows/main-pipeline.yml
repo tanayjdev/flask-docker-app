@@ -51,6 +51,9 @@ jobs:
       - name: Install Flake8
         run: pip install flake8
 
+      - name: Pipeline Notice
+        run: echo "::notice::Lint job started"
+
       - name: Run Flake8
         run: flake8 . --count --statistics
 
@@ -81,11 +84,24 @@ jobs:
           restore-keys: |
             ${{ env.CACHE_KEY_PREFIX }}-${{ runner.os }}-pip-
 
+      - name: Test Notice
+        run: echo "::notice::Running tests"
+
       - name: Install Dependencies
         run: pip install -r requirements.txt
 
       - name: Run Tests
         run: pytest test_app.py -v --tb=short
+
+      - name: Debug Information
+        run: |
+          echo "Python: $(python --version)"
+          echo "pip: $(pip --version)"
+          echo "Working dir: $(pwd)"
+          echo "Files:"
+          ls -la
+          echo "Environment:"
+          env | sort | grep -v SECRET | grep -v TOKEN
 
       - name: Generate Coverage
         run: |
@@ -207,6 +223,9 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
+      - name: Deployment Notice
+        run: echo "::notice::Deployment is starting"
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -219,6 +238,8 @@ jobs:
             echo "=== Deployment Started ==="
 
             cd ~/flask-docker-app
+
+            echo "::warning::Pulling latest Docker image"
 
             docker compose pull
 
@@ -236,6 +257,8 @@ jobs:
               docker compose logs --tail=30
               exit 1
             fi
+
+            echo "::notice::Deployment finished"
 
       - name: ✅ Success Notification
         if: success()
