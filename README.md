@@ -23,7 +23,7 @@ The project demonstrates modern DevOps practices including automated code qualit
 
 ## Architecture Diagram
 
-![Architecture](docs/architecture-v2.png)
+![Architecture](docs/architecture-v3.png)
 
 > Route 53 and S3 shown in the diagram are planned components for v3.0.
 
@@ -459,7 +459,23 @@ Through building **v1.0 → v3.0**, I gained practical experience with:
 
 This diagram illustrates the complete AWS three-tier architecture used in this project, including the Application Load Balancer, EC2 instance running the Dockerized Flask application, and Amazon RDS PostgreSQL deployed in private subnets.
 
-![Architecture Diagram](docs/architecture-v2.png)
+![Architecture Diagram](docs/architecture-v3.png)
+
+---
+
+### GitHub Actions CI/CD Pipeline
+
+The GitHub Actions workflow automatically validates, builds, and deploys the application whenever changes are pushed to the main branch. The pipeline performs code quality checks, executes unit tests, builds the Docker image, pushes it to Amazon ECR, deploys the latest version to Amazon EC2, and verifies the deployment using application health checks.
+
+![GitHub Actions Pipeline](docs/main-pipeline-success.png)
+
+---
+
+### Amazon Elastic Container Registry (ECR)
+
+Amazon Elastic Container Registry (ECR) stores versioned Docker images used by the deployment pipeline. Each successful build automatically publishes a new image to the private registry, allowing Amazon EC2 to securely pull and deploy the latest application version during the CI/CD process.
+
+![Amazon ECR Repository](docs/ecr-repository.png)
 
 ---
 
@@ -468,22 +484,6 @@ This diagram illustrates the complete AWS three-tier architecture used in this p
 The Application Load Balancer performs health checks against the Flask application's `/health` endpoint to ensure traffic is routed only to healthy targets.
 
 ![ALB Health Check](docs/alb-target-health.png)
-
----
-
-### EC2 Instance
-
-Amazon EC2 hosts the Docker container running the Flask application. The instance is deployed within a public subnet and receives traffic through the Application Load Balancer.
-
-![EC2 Instance](docs/ec2-instance.png)
-
----
-
-### Amazon RDS PostgreSQL
-
-Amazon RDS PostgreSQL serves as the application's managed database layer. The database is deployed in private subnets and is accessible only from the application layer.
-
-![Amazon RDS PostgreSQL](docs/rds-instance.png)
 
 ---
 
