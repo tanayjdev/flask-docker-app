@@ -1,12 +1,11 @@
 # Flask + PostgreSQL - Production-style CI/CD Pipeline on AWS
 
 [![Main CI/CD Pipeline](https://github.com/tanayjdev/flask-docker-app/actions/workflows/main-pipeline.yml/badge.svg)](https://github.com/tanayjdev/flask-docker-app/actions/workflows/main-pipeline.yml)
-[![Docker Pulls](https://img.shields.io/docker/pulls/tanayjain29/flask-devops-app)](https://hub.docker.com/r/tanayjain29/flask-devops-app)
+![Amazon ECR](https://img.shields.io/badge/Registry-Amazon%20ECR-FF9900?logo=amazonaws&logoColor=white)
 ![Version](https://img.shields.io/badge/version-v3.0-blue)
 
 ![AWS](https://img.shields.io/badge/AWS-Deployed-FF9900?logo=amazonaws&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-RDS-4169E1?logo=postgresql&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-Python-000000?logo=flask&logoColor=white)
 ![CloudWatch](https://img.shields.io/badge/Monitoring-CloudWatch-FF4F00?logo=amazonaws&logoColor=white)
 ![License](https://img.shields.io/badge/License-Educational-blue)
@@ -20,8 +19,7 @@
 - GitHub Actions CI/CD Pipeline
 - Amazon Elastic Container Registry (ECR)
 - Automated deployment to Amazon EC2
-- Application Load Balancer (ALB)
-- CloudWatch monitoring
+- AWS Infrastructure (EC2, ALB, RDS, VPC)
 - Matrix builds for multiple Python versions
 - Reusable GitHub Actions workflows
 - Composite GitHub Actions
@@ -83,15 +81,9 @@ Flask Application
 ```
 > This diagram represents the current v3.0 automated deployment architecture.
 
-| Tier | Components |
-|---|---|
-| Presentation | Application Load Balancer |
-| Application | EC2, Docker Engine, Flask App |
-| Data | Amazon RDS PostgreSQL |
-
 ---
 
-## AWS Services Used
+## AWS Services Used Throughout the Project
 
 | Service | Role |
 |---|---|
@@ -111,7 +103,7 @@ Flask Application
 
 ---
 
-## VPC Design
+## AWS Infrastructure (v2.0)
 
 ```
 VPC: 10.0.0.0/16
@@ -127,7 +119,7 @@ VPC: 10.0.0.0/16
 
 ---
 
-## Security Architecture
+## Infrastructure Security (v2.0)
 
 Access between layers is locked down using Security Groups:
 
@@ -148,7 +140,7 @@ The database has no public IP and is unreachable from the internet directly.
 
 ---
 
-## Monitoring
+## Infrastructure Monitoring (v2.0)
 
 Amazon CloudWatch tracks the following metrics:
 
@@ -321,10 +313,10 @@ flask-docker-app/
 │   └── application-homepage.png
 │
 ├── app.py
+├── test_app.py
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
-├── test_app.py
 ├── README.md
 ├── .dockerignore
 ├── .gitignore
@@ -380,6 +372,40 @@ The workflow performs the following stages:
 
 ---
 
+## Deployment Flow
+
+Every successful push to the main branch follows this deployment flow:
+
+```
+Git Push
+     │
+     ▼
+GitHub Actions
+     │
+     ▼
+Lint
+     │
+     ▼
+Unit Tests
+     │
+     ▼
+Docker Build
+     │
+     ▼
+Push to Amazon ECR
+     │
+     ▼
+Deploy to Amazon EC2
+     │
+     ▼
+Health Check
+     │
+     ▼
+Slack Notification
+```
+
+---
+
 ## Version History
 
 | Version | Highlights |
@@ -391,9 +417,37 @@ The workflow performs the following stages:
 
 ---
 
+## Project Evolution
+
+This repository evolved through multiple versions while learning Cloud Computing and DevOps.
+
+**v1.0**
+- Docker
+- Flask
+- PostgreSQL
+
+**v2.0**
+- EC2
+- RDS
+- ALB
+- VPC
+- CloudWatch
+
+**v3.0 (Current)**
+- GitHub Actions
+- Amazon ECR
+- Automated CI/CD
+- Matrix Builds
+- Reusable Workflows
+- Composite Actions
+- Docker Layer Caching
+- Slack Notifications
+
+---
+
 ## Project Outcomes
 
-Successfully designed, deployed, and documented a production-style three-tier web application architecture on AWS using modern cloud and DevOps practices.
+Successfully designed and documented the evolution of a containerized Flask application from a local Docker deployment to AWS infrastructure and finally to a fully automated CI/CD pipeline using GitHub Actions.
 
 - Containerized a Flask web application using Docker for consistent and portable deployments.
 - Integrated Amazon RDS PostgreSQL as a managed and persistent database solution.
@@ -491,7 +545,7 @@ The Application Load Balancer performs health checks against the Flask applicati
 
 ### CloudWatch Dashboard
 
-Amazon CloudWatch provides monitoring and visibility into the application's infrastructure, including EC2, RDS, and Load Balancer metrics.
+Amazon CloudWatch provides monitoring and visibility into the application's infrastructure, including compute, application and load balancer metrics collected during deployment and testing.
 
 ![CloudWatch Dashboard](docs/cloudwatch-dashboard.png)
 
@@ -499,7 +553,7 @@ Amazon CloudWatch provides monitoring and visibility into the application's infr
 
 ### Running Application
 
-The Flask application is accessible through the Application Load Balancer DNS endpoint and stores page visit counts in Amazon RDS PostgreSQL.
+The Flask application is accessible through the Application Load Balancer DNS endpoint and stores page visit counts in the configured PostgreSQL database.
 
 ![Running Application](docs/application-homepage.png)
 
@@ -526,4 +580,4 @@ Built as part of a structured hands-on Cloud & DevOps learning roadmap focused o
 
 ---
 
-*This project is created for educational and learning purposes.*
+*Learning and portfolio project demonstrating practical Cloud and DevOps concepts.*
